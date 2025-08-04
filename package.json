@@ -1,0 +1,56 @@
+{
+  "name": "tropy-internet-archive",
+  "productName": "Internet Archive",
+  "version": "1.0.0",
+  "description": "Upload items to Internet Archive.",
+  "icon": "icon.svg",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --color .",
+    "test": "electron-mocha --renderer test",
+    "build": "rollup -c rollup.config.js",
+    "watch": "rollup -c -w rollup.config.js"
+  },
+  "author": {
+    "name": "Center for History and New Media, George Mason University",
+    "url": "https://chnm.gmu.edu"
+  },
+  "repository": "github:tropy/tropy-internet-archive",
+  "license": "AGPL-3.0",
+  "hooks": {
+    "export": true
+  },
+  "options": [
+    {
+      "field": "api.access_key",
+      "label": "Internet Archive Access Key",
+      "hint": "Your Internet Archive S3 access key"
+    },
+    {
+      "field": "api.secret_key",
+      "label": "Internet Archive Secret Key",
+      "hint": "Your Internet Archive S3 secret key"
+    },
+    {
+      "field": "collection",
+      "label": "Collection",
+      "hint": "Collection identifier (optional)",
+      "default": "opensource"
+    }
+  ],
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "chai": "^4.3.6",
+    "electron": "^18.2.2",
+    "electron-mocha": "^11.0.2",
+    "eslint": "^8.14.0",
+    "fetch-mock": "^6.0.0",
+    "jsonld": "^5.2.0",
+    "node-fetch": "^2.6.1",
+    "rollup": "^2.72.1",
+    "rollup-plugin-license": "^2.8.0",
+    "sinon": "^14.0.0"
+  }
+}
