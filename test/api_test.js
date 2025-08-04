@@ -2,7 +2,6 @@
 
 const { expect } = require('chai')
 const { InternetArchiveApi } = require('../src/api')
-const { TITLES } = require('../src/constants')
 
 describe('InternetArchiveApi', () => {
   const mockConfig = {
@@ -82,7 +81,7 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/title': [{ '@value': 'Test Item' }]
       }
       const metadata = api.buildMetadata(item)
-      
+
       expect(metadata['x-amz-auto-make-bucket']).to.eql('1')
       expect(metadata['x-archive-meta01-collection']).to.eql('test_collection')
       expect(metadata['x-archive-meta-mediatype']).to.eql('image')
@@ -97,7 +96,7 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/date': [{ '@value': '2023-01-01' }]
       }
       const metadata = api.buildMetadata(item)
-      
+
       expect(metadata['x-archive-meta-title']).to.eql('Test Title')
       expect(metadata['x-archive-meta-description']).to.eql('Test Description')
       expect(metadata['x-archive-meta-creator']).to.eql('Test Creator')
@@ -110,7 +109,7 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/elements/1.1/description': [{ '@value': 'Elements Description' }]
       }
       const metadata = api.buildMetadata(item)
-      
+
       expect(metadata['x-archive-meta-title']).to.eql('Elements Title')
       expect(metadata['x-archive-meta-description']).to.eql('Elements Description')
     })

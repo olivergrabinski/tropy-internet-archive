@@ -15,7 +15,7 @@ module.exports = async function (url, params) {
   delete params.qs
 
   const res = await fetch(url, params)
-  
+
   // Check if response is ok
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}: ${res.statusText}`)

@@ -5,7 +5,6 @@ const sinon = require('sinon')
 const fetchMock = require('fetch-mock')
 const fs = require('fs')
 const { InternetArchiveApi } = require('../src/api')
-const { IA } = require('../src/constants')
 const Plugin = require('../src/plugin')
 const fixtures = require('./fixtures')
 const jsonld = require('jsonld')
@@ -51,7 +50,7 @@ describe('Internet Archive Mocked requests', () => {
   it('creates Internet Archive item with first file upload', async () => {
     const testIdentifier = 'tropy-test-item-123456'
     const filename = 'test-photo.jpg'
-    
+
     fetchMock.putOnce(`begin:${IA_ENDPOINT}/${testIdentifier}/${filename}`, {
       status: 200,
       body: { success: true }
@@ -77,14 +76,14 @@ describe('Internet Archive Mocked requests', () => {
   it('uploads file to Internet Archive item', async () => {
     const testIdentifier = 'tropy-test-item-123456'
     const filename = 'test-photo.jpg'
-    
+
     fetchMock.putOnce(`begin:${IA_ENDPOINT}/${testIdentifier}/${filename}`, {
       status: 200,
       body: { success: true }
     })
 
     const api = new InternetArchiveApi(config, context)
-    
+
     const result = await api.uploadFile(testIdentifier, '/fake/path/test.jpg', filename)
     expect(result.success).to.be.true
     expect(readFileStub.calledOnce).to.be.true
@@ -100,7 +99,7 @@ describe('Internet Archive Mocked requests', () => {
   it('handles file upload failure gracefully', async () => {
     const testIdentifier = 'tropy-test-item-failure'
     const filename = 'test-photo.jpg'
-    
+
     fetchMock.putOnce(`begin:${IA_ENDPOINT}/${testIdentifier}/${filename}`, {
       status: 403,
       body: { error: 'Access denied' }
@@ -125,9 +124,9 @@ describe('Internet Archive Mocked requests', () => {
     })
 
     const plugin = new Plugin(config, context)
-    
+
     const result = await plugin.export(fixtures.items)
-    
+
     expect(result).to.be.an('array')
     expect(result.length).to.be.greaterThan(0)
     expect(result[0]).to.have.property('identifier')
@@ -142,7 +141,7 @@ describe('Internet Archive Mocked requests', () => {
 
   it('handles file upload failures with ignoreErrors', async () => {
     const testIdentifier = 'tropy-test-item-errors'
-    
+
     // Mock failed file upload
     fetchMock.putOnce(`begin:${IA_ENDPOINT}/${testIdentifier}/photo-1.jpg`, {
       status: 500,
@@ -151,7 +150,7 @@ describe('Internet Archive Mocked requests', () => {
 
     const configWithIgnoreErrors = { ...config, ignoreErrors: true }
     const api = new InternetArchiveApi(configWithIgnoreErrors, context)
-    
+
     // Try to upload a file that should fail
     try {
       await api.uploadFile(testIdentifier, '/fake/path/test.jpg', 'photo-1.jpg')
