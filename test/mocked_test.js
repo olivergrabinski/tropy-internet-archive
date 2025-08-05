@@ -132,7 +132,7 @@ describe('Internet Archive Mocked requests', () => {
     expect(result[0]).to.have.property('identifier')
     expect(result[0]).to.have.property('url')
     expect(result[0]).to.have.property('files')
-    expect(result[0].url).to.match(/^https:\/\/archive\.org\/details\/tropy-.+/)
+    expect(result[0].url).to.match(/^https:\/\/archive\.org\/details\/.+-[a-f0-9]{6}$/)
 
     // Verify some calls were made to Internet Archive
     const allCalls = fetchMock.calls()

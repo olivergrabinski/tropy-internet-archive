@@ -1,7 +1,6 @@
 'use strict'
 
 const { InternetArchiveApi } = require('./api')
-const { TITLES } = require('./constants')
 const { itemTitle } = require('./utils')
 
 const configDefaults = {

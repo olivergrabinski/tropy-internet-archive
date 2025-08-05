@@ -20,7 +20,10 @@ class InternetArchiveApi {
   generateIdentifier(item) {
     const title = itemTitle(item)
     const timestamp = Date.now()
-    return `tropy-${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${timestamp}`
+    const hashInput = `${title}-${timestamp}`
+    const hash = createHash('md5').update(hashInput).digest('hex')
+    const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '-')
+    return `${cleanTitle}-${hash.substring(0, 6)}`
   }
 
   buildMetadata(item) {

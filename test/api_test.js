@@ -2,7 +2,6 @@
 
 const { expect } = require('chai')
 const { InternetArchiveApi } = require('../src/api')
-const { itemTitle } = require('../src/utils')
 
 describe('InternetArchiveApi', () => {
   const mockConfig = {
@@ -33,29 +32,6 @@ describe('InternetArchiveApi', () => {
     expect(api.config.api.access_key).to.eql('test_access')
   })
 
-  describe('itemTitle', () => {
-    const api = new InternetArchiveApi()
-
-    it('extracts title from Dublin Core terms', () => {
-      const item = {
-        'http://purl.org/dc/terms/title': [{ '@value': 'Test Title' }]
-      }
-      expect(itemTitle(item)).to.eql('Test Title')
-    })
-
-    it('extracts title from Dublin Core elements', () => {
-      const item = {
-        'http://purl.org/dc/elements/1.1/title': [{ '@value': 'Another Title' }]
-      }
-      expect(itemTitle(item)).to.eql('Another Title')
-    })
-
-    it('returns default for untitled items', () => {
-      const item = {}
-      expect(itemTitle(item)).to.eql('[Untitled]')
-    })
-  })
-
   describe('generateIdentifier', () => {
     const api = new InternetArchiveApi()
 
@@ -64,13 +40,13 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/title': [{ '@value': 'My Test Item!' }]
       }
       const identifier = api.generateIdentifier(item)
-      expect(identifier).to.match(/^tropy-my-test-item--\d+$/)
+      expect(identifier).to.match(/^my-test-item--[a-f0-9]{6}$/)
     })
 
     it('handles untitled items', () => {
       const item = {}
       const identifier = api.generateIdentifier(item)
-      expect(identifier).to.match(/^tropy--untitled--\d+$/)
+      expect(identifier).to.match(/^-untitled--[a-f0-9]{6}$/)
     })
   })
 

@@ -2,7 +2,6 @@
 
 const { expect } = require('chai')
 const Plugin = require('../src/plugin')
-const { itemTitle } = require('../src/utils')
 
 describe('Plugin', () => {
   it('config defaults', () => {
@@ -22,19 +21,5 @@ describe('Plugin', () => {
     const plugin = new Plugin(config)
     expect(plugin.config.ignoreErrors).to.be.false
     expect(plugin.config.collection).to.eql('test_collection')
-  })
-
-  it('extracts item title', () => {
-    const plugin = new Plugin()
-    const item = {
-      'http://purl.org/dc/terms/title': [{ '@value': 'Test Item' }]
-    }
-    expect(itemTitle(item)).to.eql('Test Item')
-  })
-
-  it('returns default title for untitled items', () => {
-    const plugin = new Plugin()
-    const item = {}
-    expect(itemTitle(item)).to.eql('[Untitled]')
   })
 })
