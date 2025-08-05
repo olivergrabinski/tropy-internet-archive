@@ -2,6 +2,7 @@
 
 const { InternetArchiveApi } = require('./api')
 const { TITLES } = require('./constants')
+const { itemTitle } = require('./utils')
 
 const configDefaults = {
   ignoreErrors: true
@@ -14,14 +15,6 @@ class Plugin {
     this.logger = this.context.logger
   }
 
-  itemTitle(item) {
-    for (let [key, value] of Object.entries(item)) {
-      if (TITLES.includes(key)) {
-        return value[0]['@value']
-      }
-    }
-    return '[Untitled]'
-  }
 
   async export(data) {
     const expanded = await this.context.json.expand(data)
@@ -36,7 +29,7 @@ class Plugin {
     for (let grouped of expanded) {
       const { '@graph': graph } = grouped
       for (let item of graph) {
-        const title = this.itemTitle(item)
+        const title = itemTitle(item)
         this.logger.info(`Item "${title}"...`)
 
         try {

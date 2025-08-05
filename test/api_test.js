@@ -2,6 +2,7 @@
 
 const { expect } = require('chai')
 const { InternetArchiveApi } = require('../src/api')
+const { itemTitle } = require('../src/utils')
 
 describe('InternetArchiveApi', () => {
   const mockConfig = {
@@ -39,19 +40,19 @@ describe('InternetArchiveApi', () => {
       const item = {
         'http://purl.org/dc/terms/title': [{ '@value': 'Test Title' }]
       }
-      expect(api.itemTitle(item)).to.eql('Test Title')
+      expect(itemTitle(item)).to.eql('Test Title')
     })
 
     it('extracts title from Dublin Core elements', () => {
       const item = {
         'http://purl.org/dc/elements/1.1/title': [{ '@value': 'Another Title' }]
       }
-      expect(api.itemTitle(item)).to.eql('Another Title')
+      expect(itemTitle(item)).to.eql('Another Title')
     })
 
     it('returns default for untitled items', () => {
       const item = {}
-      expect(api.itemTitle(item)).to.eql('[Untitled]')
+      expect(itemTitle(item)).to.eql('[Untitled]')
     })
   })
 

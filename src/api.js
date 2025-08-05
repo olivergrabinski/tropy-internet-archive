@@ -7,6 +7,7 @@ const request = require('./http')
 const fs = require('fs')
 const { createHash } = require('crypto')
 const path = require('path')
+const { itemTitle } = require('./utils')
 
 class InternetArchiveApi {
   constructor(config, context = {}) {
@@ -15,17 +16,9 @@ class InternetArchiveApi {
     this.logger = this.context.logger
   }
 
-  itemTitle(item) {
-    for (let [key, value] of Object.entries(item)) {
-      if (TITLES.includes(key)) {
-        return value[0]['@value']
-      }
-    }
-    return '[Untitled]'
-  }
 
   generateIdentifier(item) {
-    const title = this.itemTitle(item)
+    const title = itemTitle(item)
     const timestamp = Date.now()
     return `tropy-${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${timestamp}`
   }
