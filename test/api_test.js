@@ -93,7 +93,8 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/title': [{ '@value': 'Test Title' }],
         'http://purl.org/dc/terms/description': [{ '@value': 'Test Description' }],
         'http://purl.org/dc/terms/creator': [{ '@value': 'Test Creator' }],
-        'http://purl.org/dc/terms/date': [{ '@value': '2023-01-01' }]
+        'http://purl.org/dc/terms/date': [{ '@value': '2023-01-01' }],
+        'http://purl.org/dc/terms/language': [{ '@value': 'French' }],
       }
       const metadata = api.buildMetadata(item)
 
@@ -101,6 +102,7 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta-description']).to.eql('Test Description')
       expect(metadata['x-archive-meta-creator']).to.eql('Test Creator')
       expect(metadata['x-archive-meta-date']).to.eql('2023-01-01')
+      expect(metadata['x-archive-meta-language']).to.eql('French')
     })
 
     it('handles DC elements namespace', () => {

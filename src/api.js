@@ -44,7 +44,8 @@ class InternetArchiveApi {
       description: 'x-archive-meta-description',
       creator: 'x-archive-meta-creator',
       date: 'x-archive-meta-date',
-      publisher: 'x-archive-meta-publisher'
+      publisher: 'x-archive-meta-publisher',
+      language: 'x-archive-meta-language',
     }
 
     const dcElements = 'http://purl.org/dc/elements/1.1/'
