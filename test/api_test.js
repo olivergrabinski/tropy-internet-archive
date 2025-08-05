@@ -113,5 +113,35 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta-title']).to.eql('Elements Title')
       expect(metadata['x-archive-meta-description']).to.eql('Elements Description')
     })
+
+    it('maps publisher metadata from both namespaces', () => {
+      const item1 = {
+        'http://purl.org/dc/terms/publisher': [{ '@value': 'Test Publisher' }]
+      }
+      const item2 = {
+        'http://purl.org/dc/elements/1.1/publisher': [{ '@value': 'Elements Publisher' }]
+      }
+      
+      const metadata1 = api.buildMetadata(item1)
+      const metadata2 = api.buildMetadata(item2)
+
+      expect(metadata1['x-archive-meta-publisher']).to.eql('Test Publisher')
+      expect(metadata2['x-archive-meta-publisher']).to.eql('Elements Publisher')
+    })
+
+    it('ignores empty and whitespace-only values', () => {
+      const item = {
+        'http://purl.org/dc/terms/title': [{ '@value': 'Valid Title' }],
+        'http://purl.org/dc/terms/description': [{ '@value': '' }],
+        'http://purl.org/dc/terms/creator': [{ '@value': '   ' }],
+        'http://purl.org/dc/terms/publisher': [{ '@value': 'Valid Publisher' }]
+      }
+      const metadata = api.buildMetadata(item)
+
+      expect(metadata['x-archive-meta-title']).to.eql('Valid Title')
+      expect(metadata['x-archive-meta-description']).to.be.undefined
+      expect(metadata['x-archive-meta-creator']).to.eql('Tropy') // Falls back to default
+      expect(metadata['x-archive-meta-publisher']).to.eql('Valid Publisher')
+    })
   })
 })

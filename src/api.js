@@ -43,7 +43,8 @@ class InternetArchiveApi {
     const dcMappings = {
       description: 'x-archive-meta-description',
       creator: 'x-archive-meta-creator',
-      date: 'x-archive-meta-date'
+      date: 'x-archive-meta-date',
+      publisher: 'x-archive-meta-publisher'
     }
 
     const dcElements = 'http://purl.org/dc/elements/1.1/'
@@ -56,7 +57,10 @@ class InternetArchiveApi {
         // Check for Dublin Core properties
         for (let [dcProperty, metaKey] of Object.entries(dcMappings)) {
           if (propertyUri === dcElements + dcProperty || propertyUri === dcTerms + dcProperty) {
-            metadata[metaKey] = values[0]['@value']
+            const value = values[0]['@value']
+            if (value && value.trim()) {
+              metadata[metaKey] = value
+            }
             break
           }
         }
