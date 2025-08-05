@@ -39,18 +39,27 @@ class InternetArchiveApi {
       'x-archive-meta-source': `${product} ${version}`
     }
 
+    // Dublin Core property mappings (supporting both elements/1.1 and terms namespaces)
+    const dcMappings = {
+      description: 'x-archive-meta-description',
+      creator: 'x-archive-meta-creator',
+      date: 'x-archive-meta-date'
+    }
+
+    const dcElements = 'http://purl.org/dc/elements/1.1/'
+    const dcTerms = 'http://purl.org/dc/terms/'
+
     for (let [propertyUri, values] of Object.entries(item)) {
       if (TITLES.includes(propertyUri)) {
         metadata['x-archive-meta-title'] = values[0]['@value']
-      } else if (propertyUri === 'http://purl.org/dc/elements/1.1/description' ||
-                 propertyUri === 'http://purl.org/dc/terms/description') {
-        metadata['x-archive-meta-description'] = values[0]['@value']
-      } else if (propertyUri === 'http://purl.org/dc/elements/1.1/creator' ||
-                 propertyUri === 'http://purl.org/dc/terms/creator') {
-        metadata['x-archive-meta-creator'] = values[0]['@value']
-      } else if (propertyUri === 'http://purl.org/dc/elements/1.1/date' ||
-                 propertyUri === 'http://purl.org/dc/terms/date') {
-        metadata['x-archive-meta-date'] = values[0]['@value']
+      } else {
+        // Check for Dublin Core properties
+        for (let [dcProperty, metaKey] of Object.entries(dcMappings)) {
+          if (propertyUri === dcElements + dcProperty || propertyUri === dcTerms + dcProperty) {
+            metadata[metaKey] = values[0]['@value']
+            break
+          }
+        }
       }
     }
 
