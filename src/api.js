@@ -46,7 +46,7 @@ class InternetArchiveApi {
       date: 'x-archive-meta-date',
       publisher: 'x-archive-meta-publisher',
       language: 'x-archive-meta-language',
-      subject: 'x-archive-meta-subject',
+      subject: 'x-archive-meta-subject'
     }
 
     const dcElements = 'http://purl.org/dc/elements/1.1/'

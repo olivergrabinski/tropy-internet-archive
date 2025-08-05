@@ -125,7 +125,7 @@ describe('InternetArchiveApi', () => {
       const item2 = {
         'http://purl.org/dc/elements/1.1/publisher': [{ '@value': 'Elements Publisher' }]
       }
-      
+
       const metadata1 = api.buildMetadata(item1)
       const metadata2 = api.buildMetadata(item2)
 
