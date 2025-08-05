@@ -26,4 +26,4 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: xvfb-run npm run test
+        run: xvfb-run npm run test:ci

@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "eslint --color .",
     "test": "electron-mocha --renderer test",
+    "test:ci": "electron-mocha --renderer test --no-sandbox",
     "build": "rollup -c rollup.config.js",
     "watch": "rollup -c -w rollup.config.js"
   },
