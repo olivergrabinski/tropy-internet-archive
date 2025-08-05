@@ -4,6 +4,6 @@ config.json
 node_modules
 
 third-party-licenses.txt
-index.js
+/index.js
 
 .DS_Store
