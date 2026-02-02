@@ -96,6 +96,28 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta-subject']).to.eql('postcard;switzerland')
     })
 
+    it('maps additional Dublin Core properties', () => {
+      const item = {
+        'http://purl.org/dc/terms/type': [{ '@value': 'Image' }],
+        'http://purl.org/dc/terms/format': [{ '@value': 'image/jpeg' }],
+        'http://purl.org/dc/terms/identifier': [{ '@value': 'ark:/12345/abc' }],
+        'http://purl.org/dc/terms/source': [{ '@value': 'Collection XYZ' }],
+        'http://purl.org/dc/terms/relation': [{ '@value': 'Related Item' }],
+        'http://purl.org/dc/terms/coverage': [{ '@value': 'Commugny' }],
+        'http://purl.org/dc/terms/rights': [{ '@value': 'CC-BY' }]
+      }
+
+      const metadata = api.buildMetadata(item)
+
+      expect(metadata['x-archive-meta-type']).to.eql('Image')
+      expect(metadata['x-archive-meta-format']).to.eql('image/jpeg')
+      expect(metadata['x-archive-meta-identifier']).to.eql('ark:/12345/abc')
+      expect(metadata['x-archive-meta-source']).to.eql('Collection XYZ')
+      expect(metadata['x-archive-meta-relation']).to.eql('Related Item')
+      expect(metadata['x-archive-meta-coverage']).to.eql('Commugny')
+      expect(metadata['x-archive-meta-rights']).to.eql('CC-BY')
+    })
+
     it('handles DC elements namespace', () => {
       const item = {
         'http://purl.org/dc/elements/1.1/title': [{ '@value': 'Elements Title' }],
@@ -134,6 +156,20 @@ describe('InternetArchiveApi', () => {
 
       expect(metadata['x-archive-meta01-subject']).to.eql('postcard')
       expect(metadata['x-archive-meta02-subject']).to.eql('switzerland')
+    })
+
+    it('supports multiple creators', () => {
+      const item = {
+        'http://purl.org/dc/terms/creator': [
+          { '@value': 'Alice' },
+          { '@value': 'Bob' }
+        ]
+      }
+
+      const metadata = api.buildMetadata(item)
+
+      expect(metadata['x-archive-meta01-creator']).to.eql('Alice')
+      expect(metadata['x-archive-meta02-creator']).to.eql('Bob')
     })
 
     it('encodes non-ASCII characters in metadata values', () => {

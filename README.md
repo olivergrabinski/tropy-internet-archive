@@ -28,6 +28,30 @@ Select the items to upload, then click *File > Export > tropy-plugin-internet-ar
 
 Each Tropy item will create a new Internet Archive item with a unique identifier. All photos associated with the item will be uploaded as files. The plugin will provide direct links to the uploaded items in the activity log.
 
+## Metadata mapping
+
+The plugin maps Dublin Core fields from Tropy items to Internet Archive metadata headers. Multi-valued fields are sent using numbered headers like `x-archive-meta01-subject`, `x-archive-meta02-subject`.
+
+| Dublin Core field | Internet Archive header |
+| --- | --- |
+| `title` | `x-archive-meta-title` |
+| `description` | `x-archive-meta-description` |
+| `creator` | `x-archive-meta-creator` |
+| `contributor` | `x-archive-meta-contributor` |
+| `publisher` | `x-archive-meta-publisher` |
+| `date` | `x-archive-meta-date` |
+| `language` | `x-archive-meta-language` |
+| `subject` | `x-archive-meta-subject` |
+| `type` | `x-archive-meta-type` |
+| `format` | `x-archive-meta-format` |
+| `identifier` | `x-archive-meta-identifier` |
+| `source` | `x-archive-meta-source` |
+| `relation` | `x-archive-meta-relation` |
+| `coverage` | `x-archive-meta-coverage` |
+| `rights` | `x-archive-meta-rights` |
+
+When a value contains non-ASCII characters, it is encoded as `uri(<percent-encoded-utf8>)` per Internet Archive guidance.
+
 ## Feedback
 
 Missing a feature or having problems? Please head over to the [Tropy forums](https://forums.tropy.org/) and let us know.
