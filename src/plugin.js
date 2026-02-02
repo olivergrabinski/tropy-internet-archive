@@ -42,7 +42,7 @@ class Plugin {
             stack: e.stack
           }, `Failed to upload item "${title}"`)
           if (!this.config.ignoreErrors) {
-            break
+            throw e
           }
         }
       }

@@ -159,4 +159,20 @@ describe('Internet Archive Mocked requests', () => {
       expect(error).to.exist
     }
   })
+
+  it('fails plugin export when ignoreErrors is false', async () => {
+    fetchMock.put('begin:https://s3.us.archive.org/', {
+      status: 500,
+      body: { error: 'Upload failed' }
+    })
+
+    const plugin = new Plugin({ ...config, ignoreErrors: false }, context)
+
+    try {
+      await plugin.export(fixtures.items)
+      expect.fail('Should have thrown an error')
+    } catch (error) {
+      expect(error).to.exist
+    }
+  })
 })

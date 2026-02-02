@@ -4,7 +4,7 @@ const querystring = require('querystring')
 const { keys } = Object
 
 function addQueryString(url, qs = {}) {
-  if (keys(qs)) {
+  if (keys(qs).length > 0) {
     url += '?' + querystring.stringify(qs)
   }
   return url
