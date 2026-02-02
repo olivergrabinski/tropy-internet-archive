@@ -2,7 +2,7 @@
 
 const { expect } = require('chai')
 const sinon = require('sinon')
-const fetchMock = require('fetch-mock')
+const fetchMock = require('fetch-mock').default
 const fs = require('fs')
 const { InternetArchiveApi } = require('../src/api')
 const Plugin = require('../src/plugin')
@@ -10,6 +10,13 @@ const fixtures = require('./fixtures')
 const jsonld = require('jsonld')
 
 const IA_ENDPOINT = 'https://s3.us.archive.org'
+const getHeader = (headers, name) => {
+  if (!headers) return undefined
+  if (typeof headers.get === 'function') {
+    return headers.get(name)
+  }
+  return headers[name] || headers[name.toLowerCase()]
+}
 
 describe('Internet Archive Mocked requests', () => {
   const context = {
@@ -35,7 +42,8 @@ describe('Internet Archive Mocked requests', () => {
   let readFileStub
 
   beforeEach(() => {
-    fetchMock.restore()
+    fetchMock.hardReset()
+    fetchMock.mockGlobal()
     readFileStub = sinon.stub(fs.promises, 'readFile').resolves(Buffer.from('fake image data'))
     context.logger.debug.resetHistory()
     context.logger.error.resetHistory()
@@ -44,6 +52,7 @@ describe('Internet Archive Mocked requests', () => {
   })
 
   afterEach(() => {
+    fetchMock.unmockGlobal()
     readFileStub.restore()
   })
 
@@ -66,11 +75,11 @@ describe('Internet Archive Mocked requests', () => {
     const result = await api.uploadFile(testIdentifier, '/fake/path/test.jpg', filename, metadata)
     expect(result.success).to.be.true
 
-    const calls = fetchMock.calls()
+    const calls = fetchMock.callHistory.calls()
     expect(calls.length).to.eql(1)
-    expect(calls[0][1].method).to.eql('PUT')
-    expect(calls[0][1].headers['x-archive-meta-title']).to.eql('Test Item')
-    expect(calls[0][1].headers['x-amz-auto-make-bucket']).to.eql('1')
+    expect(calls[0].options.method.toLowerCase()).to.eql('put')
+    expect(getHeader(calls[0].options.headers, 'x-archive-meta-title')).to.eql('Test Item')
+    expect(getHeader(calls[0].options.headers, 'x-amz-auto-make-bucket')).to.eql('1')
   })
 
   it('uploads file to Internet Archive item', async () => {
@@ -89,11 +98,11 @@ describe('Internet Archive Mocked requests', () => {
     expect(readFileStub.calledOnce).to.be.true
     expect(readFileStub.calledWith('/fake/path/test.jpg')).to.be.true
 
-    const calls = fetchMock.calls()
+    const calls = fetchMock.callHistory.calls()
     expect(calls.length).to.eql(1)
-    expect(calls[0][1].method).to.eql('PUT')
-    expect(calls[0][1].headers['Content-Type']).to.eql('application/octet-stream')
-    expect(calls[0][1].headers['Authorization']).to.match(/^LOW test_access:test_secret$/)
+    expect(calls[0].options.method.toLowerCase()).to.eql('put')
+    expect(getHeader(calls[0].options.headers, 'Content-Type')).to.eql('application/octet-stream')
+    expect(getHeader(calls[0].options.headers, 'Authorization')).to.match(/^LOW test_access:test_secret$/)
   })
 
   it('handles file upload failure gracefully', async () => {
@@ -135,7 +144,7 @@ describe('Internet Archive Mocked requests', () => {
     expect(result[0].url).to.match(/^https:\/\/archive\.org\/details\/.+-[a-f0-9]{6}$/)
 
     // Verify some calls were made to Internet Archive
-    const allCalls = fetchMock.calls()
+    const allCalls = fetchMock.callHistory.calls()
     expect(allCalls.length).to.be.greaterThan(0)
   })
 
