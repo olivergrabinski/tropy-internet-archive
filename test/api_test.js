@@ -2,6 +2,7 @@
 
 const { expect } = require('chai')
 const { InternetArchiveApi } = require('../src/api')
+const { name: product, version } = require('../package')
 
 describe('InternetArchiveApi', () => {
   const mockConfig = {
@@ -63,6 +64,7 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta01-collection']).to.eql('test_collection')
       expect(metadata['x-archive-meta-mediatype']).to.eql('image')
       expect(metadata['x-archive-meta-title']).to.eql('Test Item')
+      expect(metadata['x-archive-meta-source']).to.eql(`${product} ${version}`)
     })
 
     it('maps Dublin Core properties', () => {
@@ -70,6 +72,7 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/title': [{ '@value': 'Test Title' }],
         'http://purl.org/dc/terms/description': [{ '@value': 'Test Description' }],
         'http://purl.org/dc/terms/creator': [{ '@value': 'Test Creator' }],
+        'http://purl.org/dc/terms/contributor': [{ '@value': 'Test Contributor' }],
         'http://purl.org/dc/terms/date': [{ '@value': '2023-01-01' }],
         'http://purl.org/dc/terms/language': [{ '@value': 'French' }],
         'http://purl.org/dc/terms/subject': [{ '@value': 'postcard;switzerland' }]
@@ -79,6 +82,7 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta-title']).to.eql('Test Title')
       expect(metadata['x-archive-meta-description']).to.eql('Test Description')
       expect(metadata['x-archive-meta-creator']).to.eql('Test Creator')
+      expect(metadata['x-archive-meta-contributor']).to.eql('Test Contributor')
       expect(metadata['x-archive-meta-date']).to.eql('2023-01-01')
       expect(metadata['x-archive-meta-language']).to.eql('French')
       expect(metadata['x-archive-meta-subject']).to.eql('postcard;switzerland')
@@ -110,6 +114,20 @@ describe('InternetArchiveApi', () => {
       expect(metadata2['x-archive-meta-publisher']).to.eql('Elements Publisher')
     })
 
+    it('supports multiple values for the same metadata field', () => {
+      const item = {
+        'http://purl.org/dc/terms/subject': [
+          { '@value': 'postcard' },
+          { '@value': 'switzerland' }
+        ]
+      }
+
+      const metadata = api.buildMetadata(item)
+
+      expect(metadata['x-archive-meta01-subject']).to.eql('postcard')
+      expect(metadata['x-archive-meta02-subject']).to.eql('switzerland')
+    })
+
     it('ignores empty and whitespace-only values', () => {
       const item = {
         'http://purl.org/dc/terms/title': [{ '@value': 'Valid Title' }],
@@ -121,7 +139,7 @@ describe('InternetArchiveApi', () => {
 
       expect(metadata['x-archive-meta-title']).to.eql('Valid Title')
       expect(metadata['x-archive-meta-description']).to.be.undefined
-      expect(metadata['x-archive-meta-creator']).to.eql('Tropy') // Falls back to default
+      expect(metadata['x-archive-meta-creator']).to.be.undefined
       expect(metadata['x-archive-meta-publisher']).to.eql('Valid Publisher')
     })
   })

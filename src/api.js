@@ -30,39 +30,97 @@ class InternetArchiveApi {
     const metadata = {
       'x-amz-auto-make-bucket': '1',
       'x-archive-meta01-collection': this.config.collection || 'opensource',
-      'x-archive-meta-mediatype': 'image',
-      'x-archive-meta-creator': 'Tropy',
-      'x-archive-meta-source': `${product} ${version}`
+      'x-archive-meta-mediatype': 'image'
     }
 
     // Dublin Core property mappings (supporting both elements/1.1 and terms namespaces)
     const dcMappings = {
-      description: 'x-archive-meta-description',
-      creator: 'x-archive-meta-creator',
-      date: 'x-archive-meta-date',
-      publisher: 'x-archive-meta-publisher',
-      language: 'x-archive-meta-language',
-      subject: 'x-archive-meta-subject'
+      title: 'title',
+      description: 'description',
+      creator: 'creator',
+      contributor: 'contributor',
+      publisher: 'publisher',
+      date: 'date',
+      language: 'language',
+      subject: 'subject',
+      type: 'type',
+      format: 'format',
+      identifier: 'identifier',
+      source: 'source',
+      relation: 'relation',
+      coverage: 'coverage',
+      rights: 'rights'
     }
 
     const dcElements = 'http://purl.org/dc/elements/1.1/'
     const dcTerms = 'http://purl.org/dc/terms/'
 
-    for (let [propertyUri, values] of Object.entries(item)) {
-      if (TITLES.includes(propertyUri)) {
-        metadata['x-archive-meta-title'] = values[0]['@value']
-      } else {
-        // Check for Dublin Core properties
-        for (let [dcProperty, metaKey] of Object.entries(dcMappings)) {
-          if (propertyUri === dcElements + dcProperty || propertyUri === dcTerms + dcProperty) {
-            const value = values[0]['@value']
-            if (value && value.trim()) {
-              metadata[metaKey] = value
-            }
-            break
-          }
+    const extractValues = (values = []) => {
+      if (!Array.isArray(values)) {
+        return []
+      }
+
+      const results = []
+      for (const value of values) {
+        if (value == null) continue
+        if (typeof value === 'string') {
+          const trimmed = value.trim()
+          if (trimmed) results.push(trimmed)
+          continue
+        }
+        if (typeof value === 'object' && typeof value['@value'] === 'string') {
+          const trimmed = value['@value'].trim()
+          if (trimmed) results.push(trimmed)
         }
       }
+
+      return results
+    }
+
+    const metaValues = new Map()
+    metaValues.set('source', [`${product} ${version}`])
+
+    const setMetaValues = (metaName, values, { replace = false } = {}) => {
+      if (!values.length) return
+      if (!metaValues.has(metaName) || replace) {
+        metaValues.set(metaName, values.slice())
+        return
+      }
+      metaValues.set(metaName, metaValues.get(metaName).concat(values))
+    }
+
+    for (let [propertyUri, values] of Object.entries(item)) {
+      if (TITLES.includes(propertyUri)) {
+        const titleValues = extractValues(values)
+        setMetaValues('title', titleValues, { replace: true })
+      } else {
+        // Check for Dublin Core properties
+        const dcProperty = propertyUri.startsWith(dcElements)
+          ? propertyUri.slice(dcElements.length)
+          : propertyUri.startsWith(dcTerms)
+              ? propertyUri.slice(dcTerms.length)
+              : null
+
+        if (!dcProperty || !dcMappings[dcProperty]) {
+          continue
+        }
+
+        const metaName = dcMappings[dcProperty]
+        const extractedValues = extractValues(values)
+        const replace = metaName === 'creator' || metaName === 'source' || metaName === 'title'
+        setMetaValues(metaName, extractedValues, { replace })
+      }
+    }
+
+    for (const [metaName, values] of metaValues.entries()) {
+      if (values.length === 1) {
+        metadata[`x-archive-meta-${metaName}`] = values[0]
+        continue
+      }
+      values.forEach((value, index) => {
+        const suffix = String(index + 1).padStart(2, '0')
+        metadata[`x-archive-meta${suffix}-${metaName}`] = value
+      })
     }
 
     return metadata
