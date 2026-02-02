@@ -55,6 +55,21 @@ class InternetArchiveApi {
     const dcElements = 'http://purl.org/dc/elements/1.1/'
     const dcTerms = 'http://purl.org/dc/terms/'
 
+    const encodeHeaderValue = (value) => {
+      if (typeof value !== 'string') return ''
+
+      // Remove control characters to avoid header injection issues.
+      const cleaned = value.replace(/[\x00-\x1F\x7F]/g, ' ').replace(/\s+/g, ' ').trim()
+      if (!cleaned) return ''
+
+      const hasNonAscii = /[^\x20-\x7E]/.test(cleaned)
+      if (!hasNonAscii) {
+        return cleaned
+      }
+
+      return `uri(${encodeURIComponent(cleaned)})`
+    }
+
     const extractValues = (values = []) => {
       if (!Array.isArray(values)) {
         return []
@@ -64,13 +79,13 @@ class InternetArchiveApi {
       for (const value of values) {
         if (value == null) continue
         if (typeof value === 'string') {
-          const trimmed = value.trim()
-          if (trimmed) results.push(trimmed)
+          const encoded = encodeHeaderValue(value)
+          if (encoded) results.push(encoded)
           continue
         }
         if (typeof value === 'object' && typeof value['@value'] === 'string') {
-          const trimmed = value['@value'].trim()
-          if (trimmed) results.push(trimmed)
+          const encoded = encodeHeaderValue(value['@value'])
+          if (encoded) results.push(encoded)
         }
       }
 

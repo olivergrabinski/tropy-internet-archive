@@ -128,6 +128,18 @@ describe('InternetArchiveApi', () => {
       expect(metadata['x-archive-meta02-subject']).to.eql('switzerland')
     })
 
+    it('encodes non-ASCII characters in metadata values', () => {
+      const item = {
+        'http://purl.org/dc/terms/title': [{ '@value': 'Café déjà vu — été' }],
+        'http://purl.org/dc/terms/subject': [{ '@value': 'piñata' }]
+      }
+
+      const metadata = api.buildMetadata(item)
+
+      expect(metadata['x-archive-meta-title']).to.eql('uri(Caf%C3%A9%20d%C3%A9j%C3%A0%20vu%20%E2%80%94%20%C3%A9t%C3%A9)')
+      expect(metadata['x-archive-meta-subject']).to.eql('uri(pi%C3%B1ata)')
+    })
+
     it('ignores empty and whitespace-only values', () => {
       const item = {
         'http://purl.org/dc/terms/title': [{ '@value': 'Valid Title' }],
