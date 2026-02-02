@@ -22,7 +22,13 @@ class InternetArchiveApi {
     const timestamp = Date.now()
     const hashInput = `${title}-${timestamp}`
     const hash = createHash('md5').update(hashInput).digest('hex')
-    const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const cleanTitle = title
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
     return `${cleanTitle}-${hash.substring(0, 6)}`
   }
 

@@ -41,13 +41,21 @@ describe('InternetArchiveApi', () => {
         'http://purl.org/dc/terms/title': [{ '@value': 'My Test Item!' }]
       }
       const identifier = api.generateIdentifier(item)
-      expect(identifier).to.match(/^my-test-item--[a-f0-9]{6}$/)
+      expect(identifier).to.match(/^my-test-item-[a-f0-9]{6}$/)
     })
 
     it('handles untitled items', () => {
       const item = {}
       const identifier = api.generateIdentifier(item)
-      expect(identifier).to.match(/^-untitled--[a-f0-9]{6}$/)
+      expect(identifier).to.match(/^untitled-[a-f0-9]{6}$/)
+    })
+
+    it('normalizes diacritics in titles', () => {
+      const item = {
+        'http://purl.org/dc/terms/title': [{ '@value': 'Commugny - Le Collège' }]
+      }
+      const identifier = api.generateIdentifier(item)
+      expect(identifier).to.match(/^commugny-le-college-[a-f0-9]{6}$/)
     })
   })
 
