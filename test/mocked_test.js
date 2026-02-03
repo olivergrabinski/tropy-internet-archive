@@ -4,6 +4,7 @@ const { expect } = require('chai')
 const sinon = require('sinon')
 const fetchMock = require('fetch-mock').default
 const fs = require('fs')
+const { Readable } = require('stream')
 const { InternetArchiveApi } = require('../src/api')
 const Plugin = require('../src/plugin')
 const fixtures = require('./fixtures')
@@ -39,12 +40,16 @@ describe('Internet Archive Mocked requests', () => {
     collection: 'test_collection'
   }
 
-  let readFileStub
+  let statStub
+  let createReadStreamStub
 
   beforeEach(() => {
     fetchMock.hardReset()
     fetchMock.mockGlobal()
-    readFileStub = sinon.stub(fs.promises, 'readFile').resolves(Buffer.from('fake image data'))
+    statStub = sinon.stub(fs.promises, 'stat').resolves({ size: 15 })
+    createReadStreamStub = sinon.stub(fs, 'createReadStream').callsFake(() => (
+      Readable.from(Buffer.from('fake image data'))
+    ))
     context.logger.debug.resetHistory()
     context.logger.error.resetHistory()
     context.logger.info.resetHistory()
@@ -53,7 +58,8 @@ describe('Internet Archive Mocked requests', () => {
 
   afterEach(() => {
     fetchMock.unmockGlobal()
-    readFileStub.restore()
+    statStub.restore()
+    createReadStreamStub.restore()
   })
 
   it('creates Internet Archive item with first file upload', async () => {
@@ -95,8 +101,8 @@ describe('Internet Archive Mocked requests', () => {
 
     const result = await api.uploadFile(testIdentifier, '/fake/path/test.jpg', filename)
     expect(result.success).to.be.true
-    expect(readFileStub.calledOnce).to.be.true
-    expect(readFileStub.calledWith('/fake/path/test.jpg')).to.be.true
+    expect(createReadStreamStub.called).to.be.true
+    expect(createReadStreamStub.calledWith('/fake/path/test.jpg')).to.be.true
 
     const calls = fetchMock.callHistory.calls()
     expect(calls.length).to.eql(1)
