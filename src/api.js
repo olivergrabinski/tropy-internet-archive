@@ -166,7 +166,11 @@ class InternetArchiveApi {
       ...metadata
     }
 
-    this.logger.debug('Upload headers:', headers)
+    const logHeaders = { ...headers }
+    if (logHeaders.Authorization) {
+      logHeaders.Authorization = 'REDACTED'
+    }
+    this.logger.debug('Upload headers:', logHeaders)
 
     const response = await request(url, {
       method: 'PUT',
