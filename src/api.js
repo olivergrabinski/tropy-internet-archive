@@ -16,16 +16,6 @@ class InternetArchiveApi {
     this.logger = this.context.logger
   }
 
-  async computeMd5(filePath) {
-    return new Promise((resolve, reject) => {
-      const hash = createHash('md5')
-      const stream = fs.createReadStream(filePath)
-      stream.on('data', (chunk) => hash.update(chunk))
-      stream.on('end', () => resolve(hash.digest('hex')))
-      stream.on('error', reject)
-    })
-  }
-
   generateIdentifier(item) {
     const title = itemTitle(item)
     const timestamp = Date.now()
@@ -158,18 +148,21 @@ class InternetArchiveApi {
 
   async uploadFile(identifier, filePath, filename, metadata = {}) {
     this.logger.debug(`Reading file: ${filePath}`)
-    const stats = await fs.promises.stat(filePath)
-    this.logger.debug(`File size: ${stats.size} bytes`)
+    const fileBuffer = await fs.promises.readFile(filePath)
+    this.logger.debug(`File size: ${fileBuffer.length} bytes`)
 
-    const md5Hash = await this.computeMd5(filePath)
-    this.logger.debug(`MD5 hash: ${md5Hash}`)
+    const digest = createHash('md5').update(fileBuffer).digest()
+    const md5Hex = digest.toString('hex')
+    const md5Base64 = digest.toString('base64')
+    this.logger.debug(`MD5 hash: ${md5Hex}`)
 
     const url = `${IA.ENDPOINT}/${identifier}/${filename}`
     this.logger.debug(`Upload URL: ${url}`)
 
     const headers = {
       'User-Agent': `${product} ${version}`,
-      'Content-MD5': md5Hash,
+      'Content-MD5': md5Base64,
+      'Content-Length': fileBuffer.length,
       'Content-Type': 'application/octet-stream',
       'Authorization': `LOW ${this.config.api.access_key}:${this.config.api.secret_key}`,
       ...metadata
@@ -181,11 +174,10 @@ class InternetArchiveApi {
     }
     this.logger.debug('Upload headers:', logHeaders)
 
-    const fileStream = fs.createReadStream(filePath)
     const response = await request(url, {
       method: 'PUT',
       headers,
-      body: fileStream
+      body: fileBuffer
     })
 
     this.logger.debug('Upload response:', response)
