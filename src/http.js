@@ -18,7 +18,17 @@ module.exports = async function (url, params) {
 
   // Check if response is ok
   if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+    const contentType = res.headers.get('content-type') || ''
+    let bodyText = ''
+    try {
+      bodyText = await res.text()
+    } catch (e) {
+      bodyText = ''
+    }
+    const snippet = bodyText.trim().slice(0, 1000)
+    const details = snippet ? ` - ${snippet}` : ''
+    const typeInfo = contentType ? ` (${contentType})` : ''
+    throw new Error(`HTTP ${res.status}: ${res.statusText}${typeInfo}${details}`)
   }
 
   // Handle empty responses or non-JSON responses
